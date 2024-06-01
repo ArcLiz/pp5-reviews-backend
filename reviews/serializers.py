@@ -5,7 +5,6 @@ from .models import Review
 class ReviewSerializer(serializers.ModelSerializer):
     owner_name = serializers.SerializerMethodField()
     owner = serializers.ReadOnlyField(source='owner.username')
-    book = serializers.ReadOnlyField(source='book.title')
 
     class Meta:
         model = Review

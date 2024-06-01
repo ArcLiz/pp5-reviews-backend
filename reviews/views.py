@@ -1,7 +1,8 @@
 # reviews/views.py
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Review
 from books.models import Book
 from .serializers import ReviewSerializer
@@ -69,3 +70,12 @@ class BookReviews(APIView):
             return Response(serializer.data)
         except Book.DoesNotExist:
             return Response(status=404)
+
+
+class ReviewCreate(generics.CreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user.profile)
