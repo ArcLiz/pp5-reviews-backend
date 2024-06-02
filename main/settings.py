@@ -25,6 +25,23 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICACION_CLASSES': [(
+        'rest_framework.authentication.SessionAuthentication'
+        if 'DEV' in os.environ
+        else 'dj_rest_auth.jwt_auth.JWTCookieAuthentication'
+    )]
+}
+
+REST_USE_JWT = True
+JWT_AUTH_SECURE = True
+JWT_AUTH_COOKIE = 'my-app-auth'
+JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token'
+JWT_AUTH_SAMESITE = 'None'
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'main.serializers.CurrentUserSerializer'
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -33,9 +50,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--a+u#94(bjsmecfpapamhd%qm^43+gjr()^72kw#q&va56&k_('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'DEV' in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    os.environ.get('ALLOWED_HOST'),
+    os.environ.get('LOCAL_ALLOWED_HOST'),
+    'localhost',
+]
 
 
 # Application definition
@@ -51,13 +72,23 @@ INSTALLED_APPS = [
     'cloudinary',
     'rest_framework',
 
+    # Auth
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
+
+    # Apps
     'profiles',
     'books',
     'reviews',
     'likes',
     'followers',
 ]
-
+SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -87,7 +118,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'main.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

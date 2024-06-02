@@ -1,7 +1,7 @@
 from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import generics, status
 from .models import Book
 from .serializers import BookSerializer
 from main.permissions import IsAdminOrReadOnly
@@ -19,6 +19,12 @@ class BookList(APIView):
 class BookDetails(APIView):
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly & IsAdminOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Book.objects.get(pk=pk)
+        except Book.DoesNotExist:
+            raise Http404
 
     def get(self, request, pk):
         try:

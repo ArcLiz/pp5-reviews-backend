@@ -1,5 +1,5 @@
 # reviews/views.py
-from rest_framework import status, generics
+from rest_framework import status, generics, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -9,15 +9,23 @@ from .serializers import ReviewSerializer
 from main.permissions import IsAuthorOrReadOnly, IsOwnerOrReadOnly
 
 
-class ReviewList(APIView):
-    permission_classes = [IsAuthorOrReadOnly]
-    serializer_class = ReviewSerializer
+from django.db.models import Count
 
-    def get(self, request):
-        reviews = Review.objects.all()
-        serializer = ReviewSerializer(
-            reviews, many=True, context={'request': request})
-        return Response(serializer.data)
+
+class ReviewList(generics.ListAPIView):
+    queryset = Review.objects.annotate(likes_count=Count('like')).all()
+    serializer_class = ReviewSerializer
+    filter_backends = [
+        filters.OrderingFilter,
+        filters.SearchFilter,
+    ]
+    search_fields = [
+        'owner__username',
+        'book__title'
+    ]
+    ordering_fields = [
+        'likes_count'
+    ]
 
 
 class ReviewDetail(APIView):
@@ -32,7 +40,10 @@ class ReviewDetail(APIView):
 
     def get(self, request, pk):
         review = self.get_object(pk)
-        serializer = ReviewSerializer(review)
+        review_with_likes_count = Review.objects.annotate(
+            likes_count=Count('like')).get(pk=pk)
+        serializer = ReviewSerializer(
+            review_with_likes_count, context={'request': request})
         return Response(serializer.data)
 
     def put(self, request, pk):
@@ -79,4 +90,4 @@ class ReviewCreate(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user.profile)
+        serializer.save(owner=self.request.user)
