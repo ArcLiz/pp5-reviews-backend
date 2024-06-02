@@ -15,7 +15,8 @@ class ReviewList(APIView):
 
     def get(self, request):
         reviews = Review.objects.all()
-        serializer = ReviewSerializer(reviews, many=True)
+        serializer = ReviewSerializer(
+            reviews, many=True, context={'request': request})
         return Response(serializer.data)
 
 

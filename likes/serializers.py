@@ -11,9 +11,13 @@ class LikeSerializer(serializers.ModelSerializer):
         fields = ['id', 'created_at', 'owner', 'review']
 
     def create(self, validated_data):
-        try:
-            return super().create(validated_data)
-        except IntegrityError:
-            raise serializers.ValidationError({
-                'detail': 'possible duplicate'
-            })
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            validated_data['owner'] = request.user
+            try:
+                return super().create(validated_data)
+            except IntegrityError:
+                raise serializers.ValidationError({
+                    'detail': 'possible duplicate'
+                })
+        raise serializers.ValidationError("You must be logged in to like.")
