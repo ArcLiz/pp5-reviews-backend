@@ -65,6 +65,7 @@ ALLOWED_HOSTS = [
     os.environ.get('ALLOWED_HOST'),
     os.environ.get('LOCAL_ALLOWED_HOST'),
     'localhost',
+    'pp5-litlounge-7b597e44d7be.herokuapp.com',
 ]
 
 
