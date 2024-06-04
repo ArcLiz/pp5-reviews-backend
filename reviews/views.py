@@ -91,3 +91,13 @@ class ReviewCreate(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+
+class ProfileReviews(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        owner_id = self.kwargs.get('owner_id')
+        if owner_id is not None:
+            return Review.objects.filter(owner__id=owner_id).annotate(likes_count=Count('like'))
+        return Review.objects.none()

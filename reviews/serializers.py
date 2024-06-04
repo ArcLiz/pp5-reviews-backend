@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import IntegrityError
 from .models import Review
 from likes.models import Like
@@ -44,3 +45,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'owner', 'is_owner', 'book',
                   'rating', 'comment', 'created_at', 'updated_at', 'like_id', 'likes_count']
+        extra_kwargs = {
+            'rating': {'validators': [MinValueValidator(0), MaxValueValidator(5)]}
+        }
