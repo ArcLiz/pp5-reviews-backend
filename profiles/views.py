@@ -33,7 +33,11 @@ class ProfileDetail(APIView):
 
     def get_object(self, pk):
         try:
-            profile = Profile.objects.get(pk=pk)
+            profile = Profile.objects.annotate(
+                reviews_count=Count('owner__review', distinct=True),
+                followers_count=Count('owner__followed', distinct=True),
+                following_count=Count('owner__following', distinct=True)
+            ).get(pk=pk)
             self.check_object_permissions(self.request, profile)
             return profile
         except Profile.DoesNotExist:
