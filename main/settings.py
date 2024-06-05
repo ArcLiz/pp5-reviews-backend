@@ -119,12 +119,8 @@ if 'CLIENT_ORIGIN' in os.environ:
         os.environ.get('CLIENT_ORIGIN')
     ]
 else:
-    CORS_ALLOWED_ORIGINS_REGEXES = [
-        'http://localhost:8000',
-        'http://127.0.0.1:8000',
-        'http://127.0.0.1:3000',
+    CORS_ALLOWED_ORIGINS = [
         'http://localhost:3000',
-        os.environ.get('LOCAL_CLIENT_ORIGIN'),
     ]
 
 CORS_ALLOW_HEADERS = list(default_headers)
