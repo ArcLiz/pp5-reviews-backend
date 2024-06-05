@@ -78,7 +78,8 @@ class BookReviews(APIView):
         try:
             book = Book.objects.get(pk=pk)
             reviews = Review.objects.filter(book=book)
-            serializer = ReviewSerializer(reviews, many=True)
+            serializer = ReviewSerializer(
+                reviews, many=True, context={'request': request})
             return Response(serializer.data)
         except Book.DoesNotExist:
             return Response(status=404)
