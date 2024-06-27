@@ -1,47 +1,22 @@
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Review
 from .serializers import ReviewSerializer
 from main.permissions import IsAuthorOrReadOnly
-
-
-class ProfileReviews(ListAPIView):
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        owner_id = self.kwargs.get('owner_id')
-        if owner_id is not None:
-            return Review.objects.filter(owner__id=owner_id)
-        return Review.objects.none()
-
-
-class BookReviews(ListAPIView):
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        pk = self.kwargs.get('pk')
-        if pk is not None:
-            return Review.objects.filter(book__id=pk)
-        return Review.objects.none()
-
-
-class ReviewCreate(CreateAPIView):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+from rest_framework import filters
 
 
 class ReviewList(ListAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.OrderingFilter,
+                       filters.SearchFilter, DjangoFilterBackend]
+    filterset_fields = ['owner', 'book']
 
 
 class ReviewDetail(RetrieveUpdateDestroyAPIView):

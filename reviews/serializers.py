@@ -4,13 +4,17 @@ from django.db import IntegrityError
 from .models import Review
 from likes.models import Like
 from django.db.models import Count
+from books.serializers import BookSerializer
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     is_owner = serializers.SerializerMethodField()
     owner = serializers.ReadOnlyField(source='owner.username')
+    owner_avatar = serializers.ReadOnlyField(
+        source='owner.profile.image.url')
     like_id = serializers.SerializerMethodField()
     likes_count = serializers.ReadOnlyField()
+    book = BookSerializer(read_only=True)
 
     def get_is_owner(self, obj):
         request = self.context.get('request')
@@ -40,6 +44,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'owner', 'is_owner', 'like_id', 'likes_count',
-                  'book', 'rating', 'comment', 'created_at', 'updated_at']
+                  'book', 'rating', 'comment', 'created_at', 'updated_at', 'owner_avatar']
         extra_kwargs = {'rating': {'validators': [
             MinValueValidator(0), MaxValueValidator(5)]}}
