@@ -5,6 +5,7 @@ from .models import Review
 from likes.models import Like
 from django.db.models import Count
 from books.serializers import BookSerializer
+from books.models import Book
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -14,7 +15,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         source='owner.profile.image.url')
     like_id = serializers.SerializerMethodField()
     likes_count = serializers.ReadOnlyField()
-    book = BookSerializer(read_only=True)
+    book = serializers.PrimaryKeyRelatedField(
+        queryset=Book.objects.all(), write_only=True)
+    book_detail = BookSerializer(read_only=True, source='book')
 
     def get_is_owner(self, obj):
         request = self.context.get('request')
@@ -43,7 +46,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['id', 'owner', 'is_owner', 'like_id', 'likes_count',
-                  'book', 'rating', 'comment', 'created_at', 'updated_at', 'owner_avatar']
+        fields = ['id', 'is_owner', 'owner', 'owner_avatar', 'like_id', 'likes_count',
+                  'book', 'book_detail', 'rating', 'comment', 'created_at', 'updated_at']
         extra_kwargs = {'rating': {'validators': [
             MinValueValidator(0), MaxValueValidator(5)]}}
