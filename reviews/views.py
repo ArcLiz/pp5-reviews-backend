@@ -1,6 +1,7 @@
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics
+from django.db.models import Count
 from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Review
@@ -9,7 +10,9 @@ from main.permissions import IsAuthorOrReadOnly
 
 
 class ReviewList(generics.ListCreateAPIView):
-    queryset = Review.objects.all()
+    queryset = Review.objects.annotate(
+        likes_count=Count('like', distinct=True)
+    ).all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
@@ -17,7 +20,9 @@ class ReviewList(generics.ListCreateAPIView):
 
 
 class ReviewDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Review.objects.all()
+    queryset = Review.objects.annotate(
+        likes_count=Count('like', distinct=True)
+    ).all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorOrReadOnly]
 
