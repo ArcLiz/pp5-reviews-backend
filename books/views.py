@@ -1,4 +1,5 @@
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
@@ -8,7 +9,13 @@ from main.permissions import IsAdminOrReadOnly
 from django.http import Http404
 
 
+class NoPagination(PageNumberPagination):
+    """ To remove global pagination on genre and series classes """
+    page_size = None
+
+
 class BookList(APIView):
+    """ View of all books """
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
@@ -18,8 +25,9 @@ class BookList(APIView):
 
 
 class BookDetails(APIView):
+    """ View of book:id details """
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly & IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated & IsAdminOrReadOnly]
 
     def get_object(self, pk):
         try:
@@ -52,7 +60,7 @@ class BookDetails(APIView):
 class BookCreate(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         genres_data = self.request.data.pop('genres', [])
@@ -83,27 +91,40 @@ class BookCreate(generics.CreateAPIView):
 
 
 class GenreListCreate(generics.ListCreateAPIView):
+    pagination_class = NoPagination
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly & IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated]
+
+
+class GenreDetails(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsAuthenticated & IsAdminOrReadOnly]
 
 
 class SeriesListCreate(generics.ListCreateAPIView):
+    pagination_class = NoPagination
     queryset = Series.objects.all()
     serializer_class = SeriesSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly & IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
 
-class SeriesDetails(APIView):
-    serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class SeriesDetails(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Series.objects.all()
+    serializer_class = SeriesSerializer
+    permission_classes = [IsAuthenticated & IsAdminOrReadOnly]
 
-    def get(self, request, pk):
-        try:
-            series = Series.objects.get(pk=pk)
-        except Series.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
 
-        books = Book.objects.filter(series=series)
-        serializer = BookSerializer(books, many=True)
-        return Response(serializer.data)
+        books = Book.objects.filter(series=instance)
+        books_serializer = BookSerializer(books, many=True)
+
+        response_data = {
+            'series': serializer.data,
+            'books': books_serializer.data,
+        }
+
+        return Response(response_data)
