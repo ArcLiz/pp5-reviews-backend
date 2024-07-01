@@ -1,10 +1,11 @@
-from rest_framework.permissions import IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics, status
+from rest_framework import status, generics
 from .models import Book
 from .serializers import BookSerializer
 from main.permissions import IsAdminOrReadOnly
+from django.http import Http404
 
 
 class BookList(APIView):
