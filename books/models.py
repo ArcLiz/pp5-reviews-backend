@@ -1,18 +1,5 @@
 from django.db import models
-
-
-class Genre(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
-
-class Series(models.Model):
-    name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
+from django.contrib.postgres.fields import ArrayField
 
 
 class Book(models.Model):
@@ -23,10 +10,9 @@ class Book(models.Model):
         default='covers/nocover_dhpojf.png',
     )
     description = models.TextField(blank=True)
-    genres = models.ManyToManyField(
-        'Genre', related_name='books')
-    series = models.ForeignKey(
-        Series, on_delete=models.SET_NULL, null=True, blank=True)
+    genres = ArrayField(models.CharField(
+        max_length=100), blank=True, default=list)
+    series = models.CharField(max_length=200, null=True, blank=True)
     series_number = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
