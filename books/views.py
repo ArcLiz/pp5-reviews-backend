@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db.models import Count
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Book
@@ -27,8 +28,30 @@ class BookCreate(generics.CreateAPIView):
         serializer.save()
 
 
-class BookDetails(generics.RetrieveUpdateDestroyAPIView):
+class BookDetails(APIView):
     """ View to retrieve, update, or delete a Book object """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated & IsAdminOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Book.objects.get(pk=pk)
+        except Book.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        book = self.get_object(pk)
+        serializer = BookSerializer(
+            book, context={'request': request}
+        )
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        book = self.get_object(pk)
+        serializer = BookSerializer(
+            book, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
