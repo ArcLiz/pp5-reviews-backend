@@ -24,6 +24,8 @@ class BookSerializer(serializers.ModelSerializer):
             'cover_image', instance.cover_image)
         instance.description = validated_data.get(
             'description', instance.description)
+        instance.genres = validated_data.get('genres', instance.genres)
+        instance.series = validated_data.get('series', instance.series)
         instance.series_number = validated_data.get(
             'series_number', instance.series_number)
 
