@@ -1,22 +1,25 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import generics
+from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.http import Http404
+from main.permissions import IsAdminOrReadOnly
 from .models import Book
 from .serializers import BookSerializer
-from main.permissions import IsAdminOrReadOnly
 
 
-class BookList(APIView):
-    """ View to list all books """
+class BookList(generics.ListAPIView):
+    """ View to list all books with search functionality """
+    serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Book.objects.all()
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'author', 'series']
 
-    def get(self, request):
-        books = Book.objects.all()
-        serializer = BookSerializer(books, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        queryset = Book.objects.all()
+        return queryset
 
 
 class BookCreate(generics.CreateAPIView):
