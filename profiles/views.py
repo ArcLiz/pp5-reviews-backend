@@ -3,6 +3,7 @@ from django.db.models import Count
 from rest_framework import status, generics, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Profile
 from .serializers import ProfileSerializer
 from main.permissions import IsOwnerOrReadOnly
@@ -16,7 +17,17 @@ class ProfileList(generics.ListAPIView):
     ).order_by('-created_at')
     serializer_class = ProfileSerializer
     filter_backends = [
-        filters.OrderingFilter
+        filters.OrderingFilter,
+        filters.SearchFilter,
+        DjangoFilterBackend,
+    ]
+    filterset_fields = [
+        'owner__followed__owner__profile',
+        'owner__profile',
+    ]
+    search_fields = [
+        'owner__username',
+        'name'
     ]
     ordering_fields = [
         'reviews_count',
