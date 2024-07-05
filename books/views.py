@@ -15,7 +15,7 @@ class BookList(generics.ListAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Book.objects.all()
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'author', 'series']
+    search_fields = ['title', 'author', 'series', 'genres']
 
     def get_queryset(self):
         queryset = Book.objects.all()
