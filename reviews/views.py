@@ -6,7 +6,7 @@ from django.http import Http404
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Review
 from .serializers import ReviewSerializer
-from main.permissions import IsAuthorOrReadOnly
+from main.permissions import IsAuthorOrReadOnly, IsAdminOrReadOnly
 
 
 class ReviewList(generics.ListCreateAPIView):
@@ -24,7 +24,7 @@ class ReviewDetail(RetrieveUpdateDestroyAPIView):
         likes_count=Count('like', distinct=True)
     ).all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly | IsAdminOrReadOnly]
 
     def get_object(self, pk):
         try:
@@ -49,5 +49,14 @@ class ReviewDetail(RetrieveUpdateDestroyAPIView):
     def delete(self, request, pk):
         review = self.get_object(pk)
         self.check_object_permissions(request, review)
+
+        if request.user.is_staff or request.user.is_superuser:
+            review.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        if not request.user == review.owner:
+            return Response({"error": "You do not have permission to delete this review."},
+                            status=status.HTTP_403_FORBIDDEN)
+
         review.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
