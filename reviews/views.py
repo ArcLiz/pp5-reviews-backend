@@ -55,8 +55,9 @@ class ReviewDetail(RetrieveUpdateDestroyAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         if not request.user == review.owner:
-            return Response({"error": "You do not have permission to delete this review."},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "You do not have permission to delete this review."},
+                status=status.HTTP_403_FORBIDDEN)
 
         review.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

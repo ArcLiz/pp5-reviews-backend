@@ -5,6 +5,17 @@ from books.models import Book
 
 
 class Review(models.Model):
+    """
+    Review Model
+
+    Attributes:
+      owner
+      book
+      rating
+      comment
+      created_at
+      updated_at
+    """
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(

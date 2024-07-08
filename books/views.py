@@ -33,7 +33,7 @@ class BookCreate(generics.CreateAPIView):
 
 
 class BookDetails(APIView):
-    """ View to retrieve, update, or delete a Book object """
+    """ View to retrieve book details, update, or delete a book object """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated & IsAdminOrReadOnly]

@@ -4,6 +4,10 @@ from .models import Follower
 
 
 class FollowerSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Follower model.
+    Converts the Follower Model instance into JSON format and vice versa
+    """
     owner = serializers.ReadOnlyField(source='owner.username')
     followed_name = serializers.ReadOnlyField(source='followed.username')
 

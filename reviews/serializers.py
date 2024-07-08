@@ -9,6 +9,14 @@ from books.models import Book
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """
+    The Serializer for the Review model
+
+    Adding
+      like_id
+      likes_count
+      book details
+    """
     is_owner = serializers.SerializerMethodField()
     owner = serializers.ReadOnlyField(source='owner.username')
     owner_avatar = serializers.ReadOnlyField(
@@ -46,7 +54,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['id', 'is_owner', 'owner', 'owner_avatar', 'like_id', 'likes_count',
-                  'book', 'book_detail', 'rating', 'comment', 'created_at', 'updated_at']
+        fields = ['id', 'is_owner', 'owner', 'owner_avatar', 'like_id',
+                  'likes_count', 'book', 'book_detail', 'rating', 'comment',
+                  'created_at', 'updated_at']
         extra_kwargs = {'rating': {'validators': [
             MinValueValidator(0), MaxValueValidator(5)]}}

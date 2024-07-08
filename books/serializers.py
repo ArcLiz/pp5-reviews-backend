@@ -4,6 +4,12 @@ from reviews.models import Review
 
 
 class BookSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Book model.
+    Converts the Book Model instance into JSON format and vice versa
+
+    adding reviews_count to book details
+    """
     reviews_count = serializers.SerializerMethodField()
 
     def get_reviews_count(self, obj):

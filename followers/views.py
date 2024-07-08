@@ -36,14 +36,16 @@ class FollowerDetail(generics.RetrieveDestroyAPIView):
 @api_view(['POST', 'DELETE'])
 def follow_user(request, followed_id):
     if not request.user.is_authenticated:
-        return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': 'Unauthorized'},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
     if request.method == 'POST':
         # Check if user already follows the specified user
         existing_followers = Follower.objects.filter(
             owner=request.user, followed=followed_id)
         if existing_followers.exists():
-            return Response({'error': 'User already followed'}, status=status.HTTP_200_OK)
+            return Response({'error': 'User already followed'},
+                            status=status.HTTP_200_OK)
 
         # Create a new follower instance
         follower_data = {'owner': request.user.id, 'followed': followed_id}
@@ -59,8 +61,10 @@ def follow_user(request, followed_id):
             follower_to_delete = Follower.objects.get(
                 owner=request.user, followed=followed_id)
         except Follower.DoesNotExist:
-            return Response({'error': 'Follower does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Follower does not exist'},
+                            status=status.HTTP_404_NOT_FOUND)
 
         # Remove the follow
         follower_to_delete.delete()
-        return Response({'message': 'Unfollowed user'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Unfollowed user'},
+                        status=status.HTTP_200_OK)

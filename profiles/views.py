@@ -10,6 +10,9 @@ from main.permissions import IsOwnerOrReadOnly
 
 
 class ProfileList(generics.ListAPIView):
+    """
+    Lists all user profiles
+    """
     queryset = Profile.objects.annotate(
         reviews_count=Count('owner__review', distinct=True),
         followers_count=Count('owner__followed', distinct=True),
@@ -39,6 +42,9 @@ class ProfileList(generics.ListAPIView):
 
 
 class ProfileDetail(APIView):
+    """
+    A detailed view of a specific profile object
+    """
     serializer_class = ProfileSerializer
     permission_classes = [IsOwnerOrReadOnly]
 

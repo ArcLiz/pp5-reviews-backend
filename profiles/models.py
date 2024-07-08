@@ -4,6 +4,19 @@ from django.contrib.auth.models import User
 
 
 class Profile(models.Model):
+    """
+    User Profile Model
+
+    attributes:
+      owner
+      created_at
+      updated_at
+      name
+      content
+      image
+
+    defines a default image if no image is uploaded
+    """
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

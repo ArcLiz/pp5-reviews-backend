@@ -4,6 +4,9 @@ from likes.models import Like
 
 
 class LikeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Like model
+    """
     owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
